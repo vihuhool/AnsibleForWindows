@@ -19,8 +19,6 @@
 Set-ExecutionPolicy RemoteSigned
 # Разрешаем взаимодействие Windows+Ansible с помощью CredSSP
 ~/ConfigureRemotingForAnsible.ps1 -EnableCredSSP
-# Пропишем Powershell в PATH
-~/EditPath.ps1
 ```
 ### Подготовка ПК администратора
 #### Файл hosts *(/etc/ansible/hosts)*
