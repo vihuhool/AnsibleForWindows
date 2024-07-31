@@ -45,7 +45,7 @@ all:
 ansible-playbook ConfigureETUPC.yml --ask-pass
 ```
 Разберем по шагам, что делает этот плейбук:
-1. Переменные
+#### 1. Переменные
 ```ps
 vars_prompt:
     - name: admin_password
@@ -61,7 +61,8 @@ vars_prompt:
       prompt: "Enter new computer name" # Новое имя компьютера (Не вводит в домен, но если комп уже в домене, то с правами доменного админа имя будет изменено)
       private: no
 ```
-2. Задачи
+#### 2. Задачи
+
 2.1. Создание временного расположения
    ```ps
    - name: Create Temp directory on remote host
