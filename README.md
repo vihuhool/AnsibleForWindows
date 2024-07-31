@@ -68,31 +68,31 @@ vars_prompt:
 
 2.1. Создание временного расположения
 ```ps
-   - name: Create Temp directory on remote host
-    win_file:
-      path: C:\Temp
-      state: directory
+- name: Create Temp directory on remote host
+win_file:
+  path: C:\Temp
+  state: directory
 ```
 2.2. Активация учетной записи локального администратора
 ```ps
-  - name: Copy PowerShell script to configure Administrator
-    win_copy:
-      content: |
-        $password = ConvertTo-SecureString "{{ admin_password }}" -AsPlainText -Force
-        Set-LocalUser -Name Administrator -Password $password
-        Enable-LocalUser -Name Administrator
-      dest: C:\Temp\configure_admin.ps1
+- name: Copy PowerShell script to configure Administrator
+  win_copy:
+    content: |
+      $password = ConvertTo-SecureString "{{ admin_password }}" -AsPlainText -Force
+      Set-LocalUser -Name Administrator -Password $password
+      Enable-LocalUser -Name Administrator
+    dest: C:\Temp\configure_admin.ps1
 
-  - name: Run PowerShell script to configure Administrator
-    win_shell: powershell.exe -ExecutionPolicy ByPass -File C:\Temp\configure_admin.ps1
+- name: Run PowerShell script to configure Administrator
+  win_shell: powershell.exe -ExecutionPolicy ByPass -File C:\Temp\configure_admin.ps1
 ```
 2.3. Стандратная настройка ПК для ETU
 ```ps
-  - name: Copy PowerShell script to change computer name
-    win_copy:
-      src: /mnt/d/Scripts/etuconf.ps1
-      dest: C:\Temp\new_pc.ps1
-      force: yes
+- name: Copy PowerShell script to change computer name
+  win_copy:
+    src: /mnt/d/Scripts/etuconf.ps1
+    dest: C:\Temp\new_pc.ps1
+    force: yes
 ```
 Скрипт выполнит следующее:
 - настрйока сетевого адапетра (dns, ipv6 off...);
@@ -102,21 +102,21 @@ vars_prompt:
  
 2.4. Переимнование рабочей станции
 ```ps
-  - name: Run PowerShell script to change computer name
-    win_shell: | Rename-Computer -NewName "{{ new_computer_name }}" -Force -Restart
-    when: new_computer_name != ""
+- name: Run PowerShell script to change computer name
+  win_shell: | Rename-Computer -NewName "{{ new_computer_name }}" -Force -Restart
+  when: new_computer_name != ""
 ```
 2.5. Завершение работы скрипта
 ```ps
-  - name: Wait for the machine to reboot
-    wait_for_connection:
-      delay: 300 # Периодичность проверки подключения после перезагрузки (в секундах)
-      sleep: 60 # Время ожидания подключения после перезагрузки (в секундах), в данном случае 5 минут
+- name: Wait for the machine to reboot
+  wait_for_connection:
+    delay: 300 # Периодичность проверки подключения после перезагрузки (в секундах)
+    sleep: 60 # Время ожидания подключения после перезагрузки (в секундах), в данном случае 5 минут
 
-  - name: Delete C:\Temp
-    win_file:
-      path: C:\Temp
-      state: absent
+- name: Delete C:\Temp
+  win_file:
+    path: C:\Temp
+    state: absent
 ```
 ### Установка бесплатных приложений
 ```
@@ -134,13 +134,13 @@ ansible-playbook freesoft.yml --ask-pass
 #### Особенности:
 1. Прокси
 ```ps
-    - name: Set proxy environment variables
-      win_shell: |
-        $proxy = "http://10.136.2.7:3128/"
-        [System.Environment]::SetEnvironmentVariable('http_proxy', $proxy, 'Machine')
-        [System.Environment]::SetEnvironmentVariable('https_proxy', $proxy, 'Machine')
-        setx http_proxy $proxy
-        setx https_proxy $proxy
+- name: Set proxy environment variables
+  win_shell: |
+    $proxy = "http://10.136.2.7:3128/"
+    [System.Environment]::SetEnvironmentVariable('http_proxy', $proxy, 'Machine')
+    [System.Environment]::SetEnvironmentVariable('https_proxy', $proxy, 'Machine')
+    setx http_proxy $proxy
+    setx https_proxy $proxy
 ```
 В начале плейбук задает системные настройки прокси. Это необходимо для chocolatey в случае работы на стандартном шлюзе.
 Однако также в каждой задаче далее явно указывается прокси (требуется тестировать, чтобы понять, действительно ли есть в необходимость)
