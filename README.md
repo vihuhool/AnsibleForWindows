@@ -64,12 +64,12 @@ vars_prompt:
 #### 2. Задачи
 
 2.1. Создание временного расположения
-   ```ps
+```ps
    - name: Create Temp directory on remote host
     win_file:
       path: C:\Temp
       state: directory
-   ```
+```
 2.2. Активация учетной записи локального администратора
 ```ps
   - name: Copy PowerShell script to configure Administrator
@@ -98,11 +98,11 @@ vars_prompt:
 - разметка дискового пространства (200 Gb под систему, остальное под D:).
  
 2.4. Переимнование рабочей станции
-  ```ps
+```ps
   - name: Run PowerShell script to change computer name
     win_shell: | Rename-Computer -NewName "{{ new_computer_name }}" -Force -Restart
     when: new_computer_name != ""
-  ```
+```
 2.5. Завершение работы скрипта
 ```ps
   - name: Wait for the machine to reboot
@@ -115,3 +115,30 @@ vars_prompt:
       path: C:\Temp
       state: absent
 ```
+### Установка бесплатных приложений
+```
+ansible-playbook freesoft.yml --ask-pass
+```
+С помощью данного плейбука монжо установить следующий список приложений посредством Chocolatey:
+- Mozilla Firefox
+- Yandex Browser
+- Google Chrome
+- Adobe Reader
+- 7-zip
+- FAR Manager
+- Jitsi
+
+#### Особенности:
+1. Прокси
+```ps
+    - name: Set proxy environment variables
+      win_shell: |
+        $proxy = "http://10.136.2.7:3128/"
+        [System.Environment]::SetEnvironmentVariable('http_proxy', $proxy, 'Machine')
+        [System.Environment]::SetEnvironmentVariable('https_proxy', $proxy, 'Machine')
+        setx http_proxy $proxy
+        setx https_proxy $proxy
+```
+В начале плейбук задает системные настройки прокси. Это необходимо для chocolatey в случае работы на стандартном шлюзе.
+Однако также в каждой задаче далее явно указывается прокси (требуется тестировать, чтобы понять, действительно ли есть в необходимость)
+
