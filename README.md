@@ -44,11 +44,72 @@ all:
 ```
 ansible-playbook ConfigureETUPC.yml --ask-pass
 ```
-Этот плейбук сделает следующие вещи:
-- Запрашивает у пользователя пароль для учетной записи администратора, имя пользователя и пароль для подключения Ansible, а также новое имя компьютера.
-- Активирует учетную запись администратора и здаает введенный пароль.
-- Изменяет имя ПК на заданное.
-- Настраивает сетевой адаптер (выключение IPv6, настройка DNS и т.д.).
-- Изменяет параметры электропитания.
-- Разбивает диск на C: объемом 200 ГБ и D:, который занимает весь оставшийся объем.
-- Активирует Windows 10 Pro.
+Разберем по шагам, что делает этот плейбук:
+1. Переменные
+```ps
+vars_prompt:
+    - name: admin_password
+      prompt: "Enter the password for the Administrator account" # Задаем пароль для локального администратора
+      private: yes
+    - name: ansible_user
+      prompt: "Enter the username for the Ansible connection" # Здесь нужно указать пользовтеля для подключения. Если рабочая станция в домене - подойдет доменный админ, иначе - можно выполнить под автоматически созданной при установке системы учеткой User\Test
+      private: yes
+    - name: ansible_password
+      prompt: "Enter the password for the Ansible connection"  # Пароль от учетки, от имени которой будет выполняться плейбук
+      private: yes
+    - name: new_computer_name
+      prompt: "Enter new computer name" # Новое имя компьютера (Не вводит в домен, но если комп уже в домене, то с правами доменного админа имя будет изменено)
+      private: no
+```
+2. Задачи
+2.1. Создание временного расположения
+   ```ps
+   - name: Create Temp directory on remote host
+    win_file:
+      path: C:\Temp
+      state: directory
+   ```
+2.2. Активация учетной записи локального администратора
+```ps
+  - name: Copy PowerShell script to configure Administrator
+    win_copy:
+      content: |
+        $password = ConvertTo-SecureString "{{ admin_password }}" -AsPlainText -Force
+        Set-LocalUser -Name Administrator -Password $password
+        Enable-LocalUser -Name Administrator
+      dest: C:\Temp\configure_admin.ps1
+
+  - name: Run PowerShell script to configure Administrator
+    win_shell: powershell.exe -ExecutionPolicy ByPass -File C:\Temp\configure_admin.ps1
+```
+2.3. Стандратная настройка ПК для ETU
+```ps
+  - name: Copy PowerShell script to change computer name
+    win_copy:
+      src: /mnt/d/Scripts/etuconf.ps1
+      dest: C:\Temp\new_pc.ps1
+      force: yes
+```
+Скрипт выполнит следующее:
+- настрйока сетевого адапетра (dns, ipv6 off...);
+- настройка параметров электропитания;
+- включение SMB1 Client;
+- Разметка дискового пространства (200 Gb под систему, остальное под D:)
+2.4. Переимнование рабочей станции
+  ```ps
+  - name: Run PowerShell script to change computer name
+    win_shell: | Rename-Computer -NewName "{{ new_computer_name }}" -Force -Restart
+    when: new_computer_name != ""
+  ```
+2.5. Завершение работы скрипта
+```ps
+  - name: Wait for the machine to reboot
+    wait_for_connection:
+      delay: 300 # Периодичность проверки подключения после перезагрузки (в секундах)
+      sleep: 60 # Время ожидания подключения после перезагрузки (в секундах), в данном случае 5 минут
+
+  - name: Delete C:\Temp
+    win_file:
+      path: C:\Temp
+      state: absent
+```
