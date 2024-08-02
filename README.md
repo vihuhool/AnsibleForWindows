@@ -56,14 +56,14 @@ vars_prompt:
       prompt: "Enter the password for the Administrator account" # Задаем пароль для локального администратора
       private: yes
     - name: ansible_user
-      prompt: "Enter the username for the Ansible connection" # Здесь нужно указать пользовтеля для подключения. Если рабочая станция в домене - подойдет доменный админ, иначе - можно выполнить под автоматически созданной при установке системы учеткой User\Test
-      private: yes
+      prompt: "Enter the username for the Ansible connection" # Здесь нужно указать пользовтеля для подключения. 
+      private: yes                                            # Если рабочая станция в домене - подойдет доменный админ, иначе - можно выполнить под автоматически созданной при установке системы учеткой User\Test
     - name: ansible_password
       prompt: "Enter the password for the Ansible connection"  # Пароль от учетки, от имени которой будет выполняться плейбук
       private: yes
     - name: new_computer_name
-      prompt: "Enter new computer name" # Новое имя компьютера (Не вводит в домен, но если комп уже в домене, то с правами доменного админа имя будет изменено)
-      private: no
+      prompt: "Enter new computer name" # Новое имя компьютера
+      private: no                       # не вводит в домен, но если комп уже в домене, то с правами доменного админа имя будет изменено
 ```
 #### 2. Задачи
 
