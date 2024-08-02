@@ -1,0 +1,69 @@
+---
+- name: Update PATH and Install Browsers using Chocolatey
+  hosts: all
+  vars_prompt:
+    - name: "ansible_user"
+      prompt: "Enter the username"
+      private: no
+    - name: "ansible_password"
+      prompt: "Enter the password"
+      private: yes
+  tasks:
+
+    - name: Set proxy environment variables
+      win_shell: |
+        $proxy = "http://10.136.2.7:3128"
+        [System.Environment]::SetEnvironmentVariable('http_proxy', $proxy, 'Machine')
+        [System.Environment]::SetEnvironmentVariable('https_proxy', $proxy, 'Machine')
+        setx http_proxy $proxy
+        setx https_proxy $proxy
+
+    - name: Install Mozilla Firefox using Chocolatey
+      win_chocolatey:
+        name: firefox
+        state: present
+        proxy_url: http://10.136.2.7:3128/
+
+    - name: Install Yandex Browser using Chocolatey
+      win_chocolatey:
+        name: yandex-browser
+        state: present
+        proxy_url: http://10.136.2.7:3128/
+
+    - name: Install Google Chrome using Chocolatey
+      win_chocolatey:
+        name: googlechrome
+        state: present
+        proxy_url: http://10.136.2.7:3128/
+        choco_args:
+        - --ignore-checksums
+
+
+    - name: Install Adobe Reader using Chocolatey
+      win_chocolatey:
+        name: adobereader
+        state: present
+        proxy_url: http://10.136.2.7:3128/
+
+    - name: Install 7zip using Chocolatey
+      win_chocolatey:
+        name: 7zip
+        state: present
+        proxy_url: http://10.136.2.7:3128/
+
+    - name: Install FAR Manager using Chocolatey
+      win_chocolatey:
+        name: far
+        state: present
+        proxy_url: http://10.136.2.7:3128/
+
+    - name: Install Jitsi
+      win_chocolatey:
+        name: jitsi
+        state: present
+        proxy_url: http://10.136.2.7:3128/
+
+    - name: Delete Temp
+      win_file:
+        path: C:\Temp
+        state: absent

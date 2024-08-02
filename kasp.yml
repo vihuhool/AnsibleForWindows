@@ -1,0 +1,39 @@
+- name: Install Kaspersky
+  hosts: all
+  gather_facts: no
+  vars_prompt:
+    - name: ansible_user
+      prompt: "Enter the username for the Ansible connection"
+      private: no
+    - name: ansible_password
+      prompt: "Enter the password for the Ansible connection"
+      private: yes
+
+  tasks:
+    - name: Create Temp directory on remote host
+      win_file:
+        path: C:\Temp
+        state: directory
+
+    - name: Copy installer.exe to remote host
+      win_copy:
+        src: /mnt/d/Scripts/installer.exe
+        dest: C:\Temp\installer.exe
+
+    - name: Copy installkasp.ps1 to remote host
+      win_copy:
+        src: /mnt/d/Scripts/installkasp.ps1
+        dest: C:\Temp\installkasp.ps1
+
+    - name: Run installer.exe with silent install parameters
+      win_shell: |
+        C:\Temp\installer.exe /qn
+
+    - name: Run installkasp.ps1 script
+      win_shell: |
+        powershell.exe -ExecutionPolicy Bypass -File C:\Temp\installkasp.ps1
+
+    - name: Delete Temp
+      win_file:
+        path: C:\Temp
+        state: absent
