@@ -43,6 +43,8 @@ source .venv/bin/activate
 pip install ansible
 pip install pywinrm[credssp]
 ```
+!!!Починить!!!
+LC_ALL=C.UTF-8 необходимо явно указать перед ansible...
 
 #### Playbooks *(/etc/ansible/playbooks/)*
 В данной директории следует располагать нужные плейбуки, которые в дальнешем будут выполняться.
