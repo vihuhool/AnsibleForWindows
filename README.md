@@ -16,14 +16,6 @@
 - Ansible + установленная библиотека для управления Windows-хостами.
 - Целевой ПК (или группа ПК) с чистой Windows и доступом в интернет (хотя бы через Proxy).
 
-### Подготовка админского ПК
-```ps
-python3 -m venv .venv
-source .venv/bin/activate
-pip install ansible
-pip install pywinrm[credssp]
-```
-
 ### Подготовка целевых ПК
 *В Powershell* от админа необходимо выполнить два скрипта, предварительно перед этим разрешить исполнение сценариев:
 ```ps
@@ -43,6 +35,13 @@ all:
     ansible_connection: winrm
     ansible_winrm_transport: credssp
     ansible_winrm_server_cert_validation: ignore
+```
+Создать окружение и установить пакеты:
+```ps
+python3 -m venv .venv
+source .venv/bin/activate
+pip install ansible
+pip install pywinrm[credssp]
 ```
 
 #### Playbooks *(/etc/ansible/playbooks/)*
